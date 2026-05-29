@@ -1,4 +1,10 @@
-"""Pro-only animated badge effects for DevBadge.
+"""SVG animations for DevBadge badges.
+
+NOTE: GitHub README sanitizes SVG and strips <style> tags,
+making CSS animations non-functional on GitHub profiles.
+Animations work in: browsers, static sites, documentation.
+For GitHub profiles, use the 'pulse' animation which uses
+inline style attributes that survive sanitization.
 
 All animations are pure SVG + CSS, no JavaScript required.
 They render correctly in browsers but may be simplified in
@@ -133,6 +139,11 @@ def apply_animation(svg_content: str, animation_type: str, element_id: str,
 
     Only applies if user has Pro license.
 
+    WARNING: CSS-based animations (gradient, typing, sparkle) use <style> tags
+    which are stripped by GitHub README sanitization. Only the 'pulse' animation
+    uses inline style attributes and works on GitHub profiles. For other
+    animations, they will only render in browsers and static sites.
+
     Args:
         svg_content: The original SVG string.
         animation_type: One of 'pulse', 'gradient', 'typing', 'sparkle'.
@@ -145,6 +156,17 @@ def apply_animation(svg_content: str, animation_type: str, element_id: str,
     """
     if not is_pro:
         return svg_content
+
+    # Warn if using animations that won't work on GitHub
+    if animation_type not in ("pulse",):
+        import warnings
+        warnings.warn(
+            f"Animation '{animation_type}' uses <style> tags which are stripped "
+            f"by GitHub README sanitization. Use 'pulse' for GitHub-compatible "
+            f"animations, or view badges in a browser/static site.",
+            UserWarning,
+            stacklevel=2,
+        )
 
     anim_generators = {
         "pulse": lambda: pulse_animation(element_id, kwargs.get("color", "#ffffff")),
