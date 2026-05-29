@@ -7,8 +7,6 @@ in GitHub READMEs without any external dependencies.
 from __future__ import annotations
 
 import html
-import math
-import uuid
 from typing import Dict, List, Optional
 
 from devbadge.themes import Theme, get_theme, LANGUAGE_COLORS
@@ -62,7 +60,6 @@ class CommitBadge:
             SVG string.
         """
         t = get_theme(theme)
-        uid = uuid.uuid4().hex[:8]
 
         # Sparkline from contribution data (last 30 days)
         sparkline = ""
@@ -133,7 +130,6 @@ class LanguageBadge:
             SVG string.
         """
         t = get_theme(theme)
-        uid = uuid.uuid4().hex[:8]
 
         if not languages:
             languages = [{"name": "N/A", "bytes": 1, "color": t.muted}]
@@ -492,20 +488,32 @@ def generate_badge(
 ) -> str:
     """Generate a badge by type name.
 
+    Pro badges require a valid license key set via LICENSE_KEY env var
+    or devbadge pro activate command. The is_pro_user parameter is
+    retained for backward compatibility but Pro status is always
+    verified through the license system.
+
     Args:
         badge_type: One of 'commits', 'languages', 'stats', 'activity',
                     'profile', 'coffee', 'spotify', 'weather'.
         stats: UserStats object (from github_stats).
         theme: Theme name.
-        is_pro_user: Whether the user has Pro license.
+        is_pro_user: Deprecated — Pro status is now verified via license.
         **kwargs: Additional parameters for specific badge types.
 
     Returns:
         SVG string.
     """
-    # Check if Pro badge is requested without license
-    if badge_type in PRO_BADGES and not is_pro_user:
+    # Always verify Pro status through the license system.
+    # The is_pro_user parameter is NOT trusted — a valid license is required.
+    verified_pro = is_pro()
+
+    # Check if Pro badge is requested without a verified license
+    if badge_type in PRO_BADGES and not verified_pro:
         return _pro_required_badge(badge_type, theme)
+
+    # Use verified status for all downstream checks (watermark, etc.)
+    is_pro_user = verified_pro
 
     generators = {
         "commits": _gen_commits,
