@@ -1,10 +1,10 @@
 <div align="center">
 
-# 🏅 DevBadge
+# DevBadge
 
 **Dynamic SVG badges for GitHub profiles**
 
-Generate beautiful, customizable badges that showcase your GitHub stats, languages, activity, and more — all in pure SVG.
+Generate beautiful, customizable badges that showcase your GitHub stats, languages, activity, and more — all in pure SVG with no emoji dependencies.
 
 [![PyPI version](https://img.shields.io/pypi/v/devbadge?color=415a77)](https://pypi.org/project/devbadge/)
 [![Python](https://img.shields.io/pypi/pyversions/devbadge?color=415a77)](https://pypi.org/project/devbadge/)
@@ -15,32 +15,10 @@ Generate beautiful, customizable badges that showcase your GitHub stats, languag
 
 ---
 
-## ✨ Demo
+## Demo
 
 ### Commit Badge
 <img src="https://raw.githubusercontent.com/sochiautoparts/devbadge/main/badges/commits.svg" alt="Commits" />
-
-<details>
-<summary>📝 SVG Preview</summary>
-
-```svg
-<svg xmlns="http://www.w3.org/2000/svg" width="340" height="50" viewBox="0 0 340 50">
-  <rect width="340" height="50" rx="6" fill="#0d1b2a" />
-  <rect x="0.5" y="0.5" width="339" height="49" rx="5.5" fill="none" stroke="#415a77" stroke-width="1" opacity="0.3" />
-  <text x="42" y="22" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#e0e1dd">octocat's commits</text>
-  <text x="42" y="40" font-family="'Courier New', monospace" font-size="18" font-weight="700" fill="#415a77">1,247</text>
-  <circle cx="24" cy="25" r="6" fill="none" stroke="#415a77" stroke-width="2" />
-  <circle cx="24" cy="25" r="2" fill="#415a77" />
-  <line x1="24" y1="19" x2="24" y2="10" stroke="#415a77" stroke-width="2" />
-  <line x1="24" y1="31" x2="24" y2="40" stroke="#415a77" stroke-width="2" />
-  <polyline points="140,38 146,32 152,34 158,28 164,30 170,22 176,26 182,20 188,24 194,18 200,22 206,16 212,20 218,14 224,18 230,12 236,16 242,10 248,14 254,12 260,16 266,10 272,14 278,18 284,12 290,16 296,20 302,14 308,18 314,16 320,20" fill="none" stroke="#415a77" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-  <a href="https://github.com/sochiautoparts/devbadge" target="_blank">
-    <text x="4" y="46" font-family="Arial, sans-serif" font-size="8" fill="#666666" opacity="0.6">DevBadge</text>
-  </a>
-</svg>
-```
-
-</details>
 
 ### Language Badge
 <img src="https://raw.githubusercontent.com/sochiautoparts/devbadge/main/badges/languages.svg" alt="Languages" />
@@ -53,7 +31,7 @@ Generate beautiful, customizable badges that showcase your GitHub stats, languag
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ```bash
 pip install devbadge
@@ -69,7 +47,7 @@ pip install -e .
 
 ---
 
-## 📖 Usage
+## Usage
 
 ### CLI
 
@@ -82,6 +60,15 @@ devbadge generate --user octocat --all --theme github-dark
 
 # Generate with output directory
 devbadge generate --user octocat --all --output ./my-badges/
+
+# Generate with custom colors (Pro)
+devbadge generate --user octocat --all --color accent=#ff0000 --color background=#111111
+
+# Weather badge with city (Pro)
+devbadge generate --user octocat --badge weather --city "San Francisco"
+
+# Spotify now-playing badge (Pro)
+devbadge generate --user octocat --badge spotify --spotify-token "your_oauth_token"
 
 # Initialize config file
 devbadge init
@@ -127,21 +114,31 @@ from devbadge.config import is_pro
 
 # Pro badges (require license key)
 if is_pro("SP-DVB-xxxx-xxxx"):
+    # Coffee badge with SVG icon (no emoji)
     svg = generate_badge("coffee", is_pro_user=True, username="dev", coffee_count=5)
-    svg = generate_badge("spotify", is_pro_user=True, song="Bohemian Rhapsody", artist="Queen")  # placeholder
-    svg = generate_badge("weather", is_pro_user=True, temp="22°C", condition="Sunny")  # placeholder
 
-# Animated badges (Pro only)
+    # Spotify now-playing (real API via SPOTIFY_TOKEN env var)
+    svg = generate_badge("spotify", is_pro_user=True, spotify_token="your_token")
+
+    # Weather badge (real wttr.in API, no API key needed)
+    svg = generate_badge("weather", is_pro_user=True, city="Tokyo")
+
+# Custom colors (Pro)
+svg = generate_badge("stats", stats=stats, is_pro_user=True,
+                     custom_colors={"accent": "#ff6600", "background": "#1a1a2e"})
+
+# SMIL animations that work on GitHub (Pro only)
 from devbadge.animations import apply_animation
 svg = generate_badge("stats", stats=stats, is_pro_user=True)
 svg = apply_animation(svg, "pulse", "stats-1", is_pro=True, color="#58a6ff")
+svg = apply_animation(svg, "sparkle", "stars-1", is_pro=True, count=3)
 ```
 
-> **Note:** Spotify and Weather badges are currently placeholders. Full integration with Spotify API and weather services is coming soon.
+> **Note:** All animations use SMIL (`<animate>`, `<animateTransform>`) which GitHub DOES support in SVGs. No CSS `<style>` tags are used.
 
 ---
 
-## 🤖 GitHub Action
+## GitHub Action
 
 Add this to `.github/workflows/update-badges.yml`:
 
@@ -168,31 +165,23 @@ jobs:
           badges: 'commits,languages,stats,activity'
           theme: 'dracula'
           output-dir: './badges'
-```
-
-Or run manually:
-
-```yaml
-- name: Install & Generate
-  run: |
-    pip install devbadge
-    devbadge generate --user ${{ github.repository_owner }} --all --theme dracula --token ${{ secrets.GITHUB_TOKEN }} --output ./badges
+          license-key: ${{ secrets.DEVBADGE_LICENSE }}
 ```
 
 ---
 
-## 🎨 Themes
+## Themes
 
 | Theme | Preview | Pro Only |
 |-------|---------|----------|
-| `default` | Dark blue | ❌ |
-| `dracula` | Dracula purple | ❌ |
-| `github-dark` | GitHub Dark | ❌ |
-| `solarized` | Solarized Dark | ❌ |
-| `nord` | Nord palette | ❌ |
-| `monokai` | Monokai green | ❌ |
-| `neon` | Neon glow ⚡ | ⭐ Yes |
-| `aurora` | Aurora gradient ⚡ | ⭐ Yes |
+| `default` | Dark blue | No |
+| `dracula` | Dracula purple | No |
+| `github-dark` | GitHub Dark | No |
+| `solarized` | Solarized Dark | No |
+| `nord` | Nord palette | No |
+| `monokai` | Monokai green | No |
+| `neon` | Neon glow | Yes |
+| `aurora` | Aurora gradient | Yes |
 
 ```bash
 # Use a theme
@@ -204,100 +193,95 @@ devbadge generate --user octocat --theme neon --all --license SP-DVB-xxxx-xxxx
 
 ---
 
-## 🏷️ Badge Types
+## Badge Types
 
 | Badge | Type | Free | Pro |
 |-------|------|------|-----|
-| Commits | `commits` | ✅ | ✅ |
-| Languages | `languages` | ✅ | ✅ |
-| Stats | `stats` | ✅ | ✅ |
-| Activity | `activity` | ✅ | ✅ |
-| Profile | `profile` | ✅ | ✅ |
-| Coffee | `coffee` | 🔒 | ✅ |
-| Spotify | `spotify` | 🔒 | ✅ *(placeholder)* |
-| Weather | `weather` | 🔒 | ✅ *(placeholder)* |
+| Commits | `commits` | Yes | Yes |
+| Languages | `languages` | Yes | Yes |
+| Stats | `stats` | Yes | Yes |
+| Activity | `activity` | Yes | Yes |
+| Profile | `profile` | Yes | Yes |
+| Coffee | `coffee` | Locked | Yes |
+| Spotify | `spotify` | Locked | Yes |
+| Weather | `weather` | Locked | Yes |
+
+### Pro Badge Details
+
+- **Coffee**: SVG coffee cup icon + count. No emoji, renders everywhere.
+- **Spotify**: Real now-playing via Spotify API (set `SPOTIFY_TOKEN`). Falls back to "Not configured".
+- **Weather**: Real weather via wttr.in API (set `DEVBADGE_WEATHER_CITY` or use `--city`). No API key needed.
 
 ---
 
-## 🆚 Free vs Pro
+## Free vs Pro
 
-| Feature | Free | Pro ⭐ |
-|---------|------|--------|
-| Basic badges (5 types) | ✅ | ✅ |
-| Pro badges (3 types) | 🔒 | ✅ |
-| Themes (6) | ✅ | ✅ |
-| Pro themes (2 animated) | 🔒 | ✅ |
-| Animations | 🔒 | ✅ |
-| No watermark | 🔒 | ✅ |
-| Custom colors | 🔒 | ✅ |
-| Priority support | 🔒 | ✅ |
+| Feature | Free | Pro |
+|---------|------|-----|
+| Basic badges (5 types) | Yes | Yes |
+| Pro badges (3 types) | Locked | Yes |
+| Themes (6 free) | Yes | Yes |
+| Pro themes (2) | Locked | Yes |
+| SMIL animations | Locked | Yes |
+| Custom colors | Locked | Yes |
+| No watermark | Locked | Yes |
+| Rate-limited API | Yes | Yes |
 
 ---
 
-## 💎 Pro Version & Оплата
+## Pro Version & Pricing
 
-### Цены / Pricing
+### Prices
 
 | Plan | Price | Features |
 |------|-------|----------|
-| **Free** | $0 навсегда | 5 базовых бейджей, 6 тем, с водяным знаком |
-| **Pro Monthly** | ⭐149/мес | Все бейджи + анимации + темы + без водяного знака |
-| **Pro Yearly** | ⭐999/год | Всё из Pro + экономия 44% |
-| **Pro Lifetime** | ⭐2999 навсегда | Всё из Pro + пожизненный доступ + ранний доступ к фичам |
+| **Free** | $0 forever | 5 basic badges, 6 themes, with watermark |
+| **Pro Monthly** | 149 stars/mo | All badges + animations + themes + no watermark |
+| **Pro Yearly** | 999 stars/yr | Everything in Pro + 44% savings |
+| **Pro Lifetime** | 2999 stars forever | Everything in Pro + lifetime access + early features |
 
-### Как купить / How to Buy
+### How to Buy
 
-1. Откройте бота [@allstarspay_bot](https://t.me/allstarspay_bot) в Telegram
-2. Выберите продукт **DevBadge Pro**
-3. Оплатите подходящий план
-4. Получите лицензионный ключ формата `SP-DVB-xxxx-xxxx`
-5. Активируйте ключ:
+1. Open bot [@allstarspay_bot](https://t.me/allstarspay_bot) in Telegram
+2. Select **DevBadge Pro** product
+3. Pay with the selected plan
+4. Receive a license key in format `SP-DVB-xxxx-xxxx`
+5. Activate the key:
 
 ```bash
 devbadge pro activate SP-DVB-xxxx-xxxx
 ```
 
-Или через переменную окружения:
+Or via environment variable:
 
 ```bash
 export LICENSE_KEY=SP-DVB-xxxx-xxxx
 devbadge generate --user octocat --all
 ```
 
-### Конфигурация бота / Bot Config
-
-```json
-"devbadge": {
-    "name": "DevBadge Pro",
-    "description": "Динамические SVG-бейджи для GitHub — анимации, темы, без водяного знака",
-    "plans": {
-        "month": {"price": 149, "label": "1 месяц", "days": 30},
-        "year": {"price": 999, "label": "1 год", "days": 365},
-        "lifetime": {"price": 2999, "label": "Навсегда", "days": 0}
-    },
-    "prefix": "DVB"
-}
-```
-
 ---
 
-## 🔑 License Verification
+## License Verification
 
-DevBadge Pro uses a multi-layer license verification system:
+DevBadge Pro uses a multi-layer license verification system with HMAC-signed cache:
 
-1. **Local Cache** — Cached verification result in `~/.devbadge/license_cache.json` (offline capable, 7-day TTL)
+1. **Local Cache** — HMAC-signed cache in `~/.devbadge/license_cache.json` (offline capable, 24h re-verification)
 2. **Public Registry** — Checks `licenses.json` from [StarsPay Bot repo](https://github.com/sochiautoparts/stars-pay-bot)
 3. **REST API Fallback** — Verifies via StarsPay API with `STARSPAY_API_KEY`
+
+### Cache Security
+
+Cache entries are signed with HMAC using a key derived from the license key. Manually creating cache files with `valid=true` will fail signature verification. Cache expires after 24 hours and must be re-verified with the server.
 
 ### Key Format
 
 ```
 SP-DVB-xxxx-xxxx
-│  │   │    │
-│  │   │    └── Unique suffix (4 chars)
-│  │   └── Product code (DVB = DevBadge)
-│  └── StarsPay prefix
-└── Service identifier
+|  |   |    |
+|  |   |    +-- Unique suffix (4 chars)
+|  |   +-- Product code (DVB = DevBadge)
+|  +-- StarsPay prefix
++-- Service identifier
 ```
 
 ### Environment Variables
@@ -306,13 +290,34 @@ SP-DVB-xxxx-xxxx
 |----------|-------------|
 | `LICENSE_KEY` or `DEVBADGE_LICENSE` | Pro license key |
 | `GITHUB_TOKEN` | GitHub personal access token |
+| `SPOTIFY_TOKEN` | Spotify OAuth token (for now-playing badge) |
+| `DEVBADGE_WEATHER_CITY` | Default city for weather badge |
 | `STARSPAY_API_KEY` | StarsPay API key (for REST fallback) |
 | `DEVBADGE_THEME` | Default theme |
 | `DEVBADGE_OUTPUT` | Default output directory |
 
 ---
 
-## 🤝 Contributing
+## Technical Details
+
+### SVG Rendering
+
+All badges use pure SVG with no emoji characters. Emoji in `<text>` elements don't render reliably across platforms, so we use:
+- SVG shape icons (circles, polygons, paths) for visual elements
+- Plain text labels for stat names
+- SMIL `<animate>` for animations (GitHub-compatible)
+
+### Commit Count
+
+DevBadge fetches **lifetime** commit counts by summing `contributionsCollection` across all years from the user's account creation date. This provides accurate total commit counts, not just the current year.
+
+### API Rate Limiting
+
+GitHub API calls are cached in memory for 5 minutes to respect rate limits. When rate-limited, the tool automatically waits (up to 60s) and retries.
+
+---
+
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -333,7 +338,7 @@ pytest tests/ -v
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
@@ -341,8 +346,8 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 <div align="center">
 
-**[⭐ Get DevBadge Pro](https://t.me/allstarspay_bot)** · **[📚 Documentation](https://sochiautoparts.github.io/devbadge/)** · **[🐛 Report Bug](https://github.com/sochiautoparts/devbadge/issues)**
+**[Get DevBadge Pro](https://t.me/allstarspay_bot)** · **[Documentation](https://sochiautoparts.github.io/devbadge/)** · **[Report Bug](https://github.com/sochiautoparts/devbadge/issues)**
 
-Made with ❤️ by [sochiautoparts](https://github.com/sochiautoparts)
+Made with care by [sochiautoparts](https://github.com/sochiautoparts)
 
 </div>

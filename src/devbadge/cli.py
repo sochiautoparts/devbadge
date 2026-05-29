@@ -41,6 +41,10 @@ def create_parser() -> argparse.ArgumentParser:
     gen.add_argument("--token", help="GitHub personal access token")
     gen.add_argument("--license", dest="license_key", help="DevBadge Pro license key (SP-DVB-xxxx-xxxx)")
     gen.add_argument("--no-fetch", action="store_true", help="Skip API fetch, use cached/placeholder data")
+    gen.add_argument("--city", help="City for weather badge (or set DEVBADGE_WEATHER_CITY)")
+    gen.add_argument("--spotify-token", help="Spotify OAuth token for now-playing badge (or set SPOTIFY_TOKEN)")
+    gen.add_argument("--color", action="append", metavar="KEY=VALUE",
+                     help="Custom color override (e.g., --color accent=#ff0000). Can be repeated.")
 
     # init command
     subparsers.add_parser("init", help="Create a config file at ~/.devbadge/config.json")
@@ -58,6 +62,18 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _parse_color_overrides(color_args: Optional[List[str]]) -> dict:
+    """Parse --color KEY=VALUE arguments into a dict."""
+    if not color_args:
+        return {}
+    colors = {}
+    for arg in color_args:
+        if "=" in arg:
+            key, value = arg.split("=", 1)
+            colors[key.strip()] = value.strip()
+    return colors
+
+
 def cmd_generate(args: argparse.Namespace) -> int:
     """Execute the generate command."""
     from devbadge.config import is_pro as check_pro
@@ -68,9 +84,9 @@ def cmd_generate(args: argparse.Namespace) -> int:
     pro_user = check_pro(license_key)
 
     if pro_user:
-        print("✨ Pro license activated!")
+        print("Pro license activated!")
     else:
-        print("ℹ️  Using free tier (some badges may have watermarks)")
+        print("  Using free tier (some badges may have watermarks)")
 
     # Determine which badges to generate
     if args.all:
@@ -83,19 +99,22 @@ def cmd_generate(args: argparse.Namespace) -> int:
     # Validate theme
     theme = get_theme(args.theme)
     if theme.pro_only and not pro_user:
-        print(f"⚠️  Theme '{args.theme}' is Pro-only. Falling back to 'default'.")
+        print(f"  Theme '{args.theme}' is Pro-only. Falling back to 'default'.")
         theme = get_theme("default")
+
+    # Parse custom colors
+    custom_colors = _parse_color_overrides(args.color)
 
     # Fetch stats
     stats = None
     if not args.no_fetch:
         try:
             from devbadge.github_stats import fetch_stats
-            print(f"📡 Fetching GitHub stats for @{args.user}...")
+            print(f"Fetching GitHub stats for @{args.user}...")
             stats = fetch_stats(args.user, token=args.token)
-            print(f"   ✓ {stats.total_commits} commits, {stats.public_repos} repos, {stats.total_stars} stars")
+            print(f"   {stats.total_commits} commits, {stats.public_repos} repos, {stats.total_stars} stars")
         except Exception as e:
-            print(f"⚠️  Failed to fetch stats: {e}")
+            print(f"  Failed to fetch stats: {e}")
             print("   Generating badges with placeholder data...")
             stats = None
 
@@ -103,11 +122,22 @@ def cmd_generate(args: argparse.Namespace) -> int:
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # Build extra kwargs for badge generation
+    extra_kwargs = {}
+    if custom_colors:
+        extra_kwargs["custom_colors"] = custom_colors
+    if args.city:
+        extra_kwargs["city"] = args.city
+    if args.spotify_token:
+        extra_kwargs["spotify_token"] = args.spotify_token
+    if args.user:
+        extra_kwargs["username"] = args.user
+
     # Generate each badge
     generated = 0
     for badge_type in badge_list:
         if badge_type not in BADGE_TYPES:
-            print(f"⚠️  Unknown badge type: {badge_type}")
+            print(f"  Unknown badge type: {badge_type}")
             continue
 
         try:
@@ -116,23 +146,23 @@ def cmd_generate(args: argparse.Namespace) -> int:
                 stats=stats,
                 theme=args.theme if not (theme.pro_only and not pro_user) else "default",
                 is_pro_user=pro_user,
-                username=args.user,
+                **extra_kwargs,
             )
             output_file = output_dir / f"{badge_type}.svg"
             output_file.write_text(svg, encoding="utf-8")
-            print(f"   ✓ Generated {badge_type} → {output_file}")
+            print(f"   Generated {badge_type} -> {output_file}")
             generated += 1
         except Exception as e:
-            print(f"   ✗ Failed to generate {badge_type}: {e}")
+            print(f"   Failed to generate {badge_type}: {e}")
 
-    print(f"\n🎉 Generated {generated}/{len(badge_list)} badges in {output_dir}/")
+    print(f"\nGenerated {generated}/{len(badge_list)} badges in {output_dir}/")
     return 0
 
 
 def cmd_init(args: argparse.Namespace) -> int:
     """Execute the init command."""
     path = init_config()
-    print(f"✅ Config file created at {path}")
+    print(f"Config file created at {path}")
     print("   Edit it to customize your DevBadge settings.")
     return 0
 
@@ -143,7 +173,7 @@ def cmd_pro(args: argparse.Namespace) -> int:
         from devbadge.config import _validate_key_format, _cache_license
         key = args.key
         if not _validate_key_format(key):
-            print("❌ Invalid license key format. Expected: SP-DVB-xxxx-xxxx")
+            print("Invalid license key format. Expected: SP-DVB-xxxx-xxxx")
             return 1
 
         if is_pro(key):
@@ -152,10 +182,10 @@ def cmd_pro(args: argparse.Namespace) -> int:
             config = DevBadgeConfig.load()
             config.license_key = key
             config.save()
-            print("✅ Pro license activated! All features unlocked.")
+            print("Pro license activated! All features unlocked.")
             return 0
         else:
-            print("❌ License key is not valid or has expired.")
+            print("License key is not valid or has expired.")
             print("   Purchase at https://t.me/allstarspay_bot")
             return 1
 
@@ -163,17 +193,17 @@ def cmd_pro(args: argparse.Namespace) -> int:
         config = DevBadgeConfig.load()
         key = config.license_key
         if not key:
-            print("ℹ️  No license key configured.")
+            print("  No license key configured.")
             print("   Use 'devbadge pro activate KEY' to activate.")
             print("   Purchase at https://t.me/allstarspay_bot")
             return 0
 
         if is_pro(key):
-            print("✅ Pro license is active!")
+            print("Pro license is active!")
             print(f"   Key: {key[:10]}****")
             return 0
         else:
-            print("❌ Pro license is invalid or expired.")
+            print("Pro license is invalid or expired.")
             print("   Purchase at https://t.me/allstarspay_bot")
             return 1
     else:
@@ -183,19 +213,19 @@ def cmd_pro(args: argparse.Namespace) -> int:
 
 def cmd_themes(args: argparse.Namespace) -> int:
     """List available themes."""
-    print("\n🎨 Available Themes:\n")
+    print("\nAvailable Themes:\n")
     free = list_free_themes()
     all_themes = list_themes()
 
     print("  Free themes:")
     for name, theme in free.items():
-        print(f"    • {name:15s}  bg={theme.background}  fg={theme.foreground}")
+        print(f"    {name:15s}  bg={theme.background}  fg={theme.foreground}")
 
-    print("\n  Pro themes (⭐):")
+    print("\n  Pro themes:")
     for name, theme in all_themes.items():
         if theme.pro_only:
             animated = " (animated)" if theme.animated else ""
-            print(f"    • {name:15s}  bg={theme.background}  fg={theme.foreground}{animated}")
+            print(f"    {name:15s}  bg={theme.background}  fg={theme.foreground}{animated}")
 
     print()
     return 0

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import re
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -47,6 +49,29 @@ class UserStats:
 GITHUB_API = "https://api.github.com"
 GITHUB_GRAPHQL = "https://api.github.com/graphql"
 
+# Simple in-memory cache for API responses to respect rate limits
+_api_cache: Dict[str, tuple] = {}  # url -> (timestamp, data)
+_CACHE_TTL = 300  # 5 minutes
+
+
+def _get_cached(url: str) -> Optional[Any]:
+    """Get cached API response if still valid."""
+    if url in _api_cache:
+        ts, data = _api_cache[url]
+        if time.time() - ts < _CACHE_TTL:
+            return data
+        del _api_cache[url]
+    return None
+
+
+def _set_cached(url: str, data: Any) -> None:
+    """Cache an API response."""
+    _api_cache[url] = (time.time(), data)
+    # Limit cache size
+    if len(_api_cache) > 100:
+        oldest = min(_api_cache, key=lambda k: _api_cache[k][0])
+        del _api_cache[oldest]
+
 
 def _headers(token: Optional[str] = None) -> Dict[str, str]:
     """Build request headers."""
@@ -60,13 +85,36 @@ def _headers(token: Optional[str] = None) -> Dict[str, str]:
 
 
 def _get(token: Optional[str], url: str, params: Optional[Dict] = None) -> Any:
-    """Perform a GET request to GitHub API."""
+    """Perform a GET request to GitHub API with caching and rate limit handling."""
     if httpx is None:
         raise RuntimeError("httpx is required for GitHub API access. Install with: pip install httpx")
+
+    # Check cache first
+    cache_key = f"{url}?{sorted(params.items()) if params else ''}"
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
     with httpx.Client(timeout=30) as client:
         r = client.get(url, headers=_headers(token), params=params)
+
+        # Handle rate limiting
+        if r.status_code == 403 and "rate limit" in r.text.lower():
+            reset_time = int(r.headers.get("X-RateLimit-Reset", 0))
+            if reset_time:
+                wait_time = max(reset_time - int(time.time()), 1)
+                if wait_time <= 60:  # Only wait up to 60 seconds
+                    time.sleep(wait_time + 1)
+                    r = client.get(url, headers=_headers(token), params=params)
+                else:
+                    raise RuntimeError(f"GitHub API rate limit exceeded. Resets in {wait_time}s")
+            else:
+                raise RuntimeError("GitHub API rate limit exceeded")
+
         r.raise_for_status()
-        return r.json()
+        data = r.json()
+        _set_cached(cache_key, data)
+        return data
 
 
 def _post_graphql(token: Optional[str], query: str, variables: Optional[Dict] = None) -> Any:
@@ -117,23 +165,73 @@ def fetch_repo_languages(repo_full_name: str, token: Optional[str] = None) -> Di
 
 
 def fetch_commit_count_graphql(username: str, token: Optional[str] = None) -> int:
-    """Fetch total commit count via GraphQL contributions_collection."""
-    query = """
+    """Fetch total commit count via GraphQL by summing multiple years.
+
+    The `contributionsCollection` defaults to the current year only.
+    To get lifetime commits, we sum contributions across all years
+    from the user's account creation date.
+
+    Args:
+        username: GitHub username.
+        token: GitHub personal access token (required for GraphQL).
+
+    Returns:
+        Total commit count (lifetime), or 0 if unavailable.
+    """
+    # First, get the user's account creation date
+    profile_query = """
     query($login: String!) {
       user(login: $login) {
-        contributionsCollection {
-          totalCommitContributions
-          restrictedContributionsCount
-        }
+        createdAt
       }
     }
     """
     try:
-        data = _post_graphql(token, query, {"login": username})
-        collection = data["user"]["contributionsCollection"]
-        return collection["totalCommitContributions"] + collection["restrictedContributionsCount"]
+        data = _post_graphql(token, profile_query, {"login": username})
+        created_at = data["user"]["createdAt"]
+        created_date = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
     except Exception:
-        return 0
+        # Fallback: just use current year
+        created_date = datetime.now(timezone.utc)
+
+    now = datetime.now(timezone.utc)
+    total_commits = 0
+
+    # Sum contributions for each year from account creation
+    current = datetime(created_date.year, 1, 1, tzinfo=timezone.utc)
+    while current <= now:
+        year_end = datetime(current.year, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+        # Clamp to now if the year is current
+        if year_end > now:
+            year_end = now
+        # Clamp to creation date for the first year
+        year_start = max(current, created_date)
+
+        year_query = """
+        query($login: String!, $from: DateTime!, $to: DateTime!) {
+          user(login: $login) {
+            contributionsCollection(from: $from, to: $to) {
+              totalCommitContributions
+              restrictedContributionsCount
+            }
+          }
+        }
+        """
+        try:
+            data = _post_graphql(token, year_query, {
+                "login": username,
+                "from": year_start.isoformat(),
+                "to": year_end.isoformat(),
+            })
+            collection = data["user"]["contributionsCollection"]
+            total_commits += collection["totalCommitContributions"] + collection["restrictedContributionsCount"]
+        except Exception:
+            pass  # Skip this year on error
+
+        # Move to next year
+        current = datetime(current.year + 1, 1, 1, tzinfo=timezone.utc)
+
+    return total_commits
 
 
 def fetch_contribution_calendar(username: str, token: Optional[str] = None) -> List[int]:
@@ -198,6 +296,128 @@ def aggregate_languages(repos: List[Dict], username: str, token: Optional[str] =
     return result
 
 
+def fetch_weather(city: str) -> Dict[str, str]:
+    """Fetch current weather for a city via wttr.in API.
+
+    No API key required. Returns dict with temp, condition, location.
+    """
+    if httpx is None:
+        return {"temp": "--", "condition": "N/A", "location": city}
+
+    try:
+        # wttr.in JSON format
+        url = f"https://wttr.in/{city}?format=j1"
+        with httpx.Client(timeout=10) as client:
+            r = client.get(url, headers={"Accept": "application/json"})
+            r.raise_for_status()
+            data = r.json()
+
+        current = data.get("current_condition", [{}])[0]
+        temp_c = current.get("temp_C", "--")
+        condition = current.get("weatherDesc", [{}])[0].get("value", "Unknown")
+        area = data.get("nearest_area", [{}])[0]
+        location = area.get("areaName", [{}])[0].get("value", city)
+
+        # Weather condition to icon mapping
+        weather_code = current.get("weatherCode", "113")
+        icon = _weather_code_to_svg_icon(weather_code)
+
+        return {
+            "temp": f"{temp_c}°C",
+            "condition": condition,
+            "location": location,
+            "icon_code": weather_code,
+            "icon_svg": icon,
+        }
+    except Exception:
+        return {"temp": "--", "condition": "N/A", "location": city, "icon_code": "113", "icon_svg": "sun"}
+
+
+def _weather_code_to_svg_icon(code: str) -> str:
+    """Map wttr.in weather code to SVG icon name."""
+    code_int = int(code)
+    if code_int in (113,):
+        return "sun"
+    elif code_int in (116,):
+        return "cloud-sun"
+    elif code_int in (119, 122):
+        return "cloud"
+    elif code_int in (176, 263, 266, 293, 296, 299, 302, 305, 308, 311, 314, 317, 353, 356, 359):
+        return "rain"
+    elif code_int in (179, 182, 185, 227, 230, 320, 323, 326, 329, 332, 335, 338, 350, 362, 365, 368, 371, 374, 377, 392, 395):
+        return "snow"
+    elif code_int in (200, 386, 389):
+        return "thunder"
+    elif code_int in (143, 248, 260):
+        return "fog"
+    else:
+        return "cloud"
+
+
+def fetch_spotify_now_playing(access_token: str) -> Dict[str, str]:
+    """Fetch currently playing track from Spotify API.
+
+    Args:
+        access_token: Spotify OAuth access token.
+
+    Returns:
+        Dict with song, artist, is_playing fields.
+    """
+    if not access_token:
+        return {"song": "Not configured", "artist": "Set SPOTIFY_TOKEN", "is_playing": False}
+
+    if httpx is None:
+        return {"song": "Not playing", "artist": "--", "is_playing": False}
+
+    try:
+        with httpx.Client(timeout=10) as client:
+            r = client.get(
+                "https://api.spotify.com/v1/me/player/currently-playing",
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+
+            if r.status_code == 204:
+                # No track currently playing — get last played
+                r2 = client.get(
+                    "https://api.spotify.com/v1/me/player/recently-played?limit=1",
+                    headers={"Authorization": f"Bearer {access_token}"},
+                )
+                if r2.status_code == 200:
+                    data = r2.json()
+                    items = data.get("items", [])
+                    if items:
+                        track = items[0].get("track", {})
+                        song = track.get("name", "Unknown")
+                        artists = track.get("artists", [])
+                        artist = artists[0].get("name", "Unknown") if artists else "Unknown"
+                        return {"song": song, "artist": artist, "is_playing": False}
+                return {"song": "Not playing", "artist": "--", "is_playing": False}
+
+            if r.status_code == 401:
+                return {"song": "Token expired", "artist": "Refresh SPOTIFY_TOKEN", "is_playing": False}
+
+            r.raise_for_status()
+            data = r.json()
+
+            if not data.get("is_playing", False) and data.get("item"):
+                track = data["item"]
+                song = track.get("name", "Unknown")
+                artists = track.get("artists", [])
+                artist = artists[0].get("name", "Unknown") if artists else "Unknown"
+                return {"song": song, "artist": artist, "is_playing": False}
+
+            if data.get("item"):
+                track = data["item"]
+                song = track.get("name", "Unknown")
+                artists = track.get("artists", [])
+                artist = artists[0].get("name", "Unknown") if artists else "Unknown"
+                return {"song": song, "artist": artist, "is_playing": True}
+
+            return {"song": "Not playing", "artist": "--", "is_playing": False}
+    except Exception:
+        return {"song": "Not playing", "artist": "--", "is_playing": False}
+
+
 def fetch_stats(username: str, token: Optional[str] = None) -> UserStats:
     """Fetch comprehensive GitHub stats for a user.
 
@@ -236,7 +456,7 @@ def fetch_stats(username: str, token: Optional[str] = None) -> UserStats:
     stats.total_stars = sum(r.get("stargazers_count", 0) for r in repos)
     stats.total_forks = sum(r.get("forks_count", 0) for r in repos)
 
-    # Try GraphQL for commit count
+    # Try GraphQL for lifetime commit count
     if token:
         stats.total_commits = fetch_commit_count_graphql(username, token)
         stats.contribution_data = fetch_contribution_calendar(username, token)
@@ -262,7 +482,6 @@ def fetch_stats(username: str, token: Optional[str] = None) -> UserStats:
     else:
         # No token — use commit count from public repos via Link header
         # GitHub REST API returns a Link header with last page number = total commits
-        import re
         total = 0
         for repo in repos[:10]:
             try:

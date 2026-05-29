@@ -34,7 +34,7 @@ runs:
       run: |
         devbadge generate \
           --user ${{ github.repository_owner }} \
-          --badges "${{ inputs.badges }}" \
+          --badge "${{ inputs.badges }}" \
           --theme ${{ inputs.theme }} \
           --output ${{ inputs.output-dir }} \
           --token ${{ inputs.github-token }} \

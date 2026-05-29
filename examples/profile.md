@@ -1,15 +1,15 @@
-# Hi there! 👋 I'm a developer
+# Hi there! I'm a developer
 
 Welcome to my GitHub profile!
 
-## 📊 My DevBadges
+## My DevBadges
 
 ![Commits](./badges/commits.svg)
 ![Languages](./badges/languages.svg)
 ![Stats](./badges/stats.svg)
 ![Activity](./badges/activity.svg)
 
-## ☕ Support My Work
+## Support My Work
 
 ![Coffee](./badges/coffee.svg)
 

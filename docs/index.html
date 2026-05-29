@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DevBadge — Dynamic SVG Badges for GitHub</title>
-  <meta name="description" content="Generate beautiful, dynamic SVG badges for your GitHub profile. Themes, animations, and more.">
+  <meta name="description" content="Generate beautiful, dynamic SVG badges for your GitHub profile. Themes, SMIL animations, weather, Spotify, and more.">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -242,7 +242,7 @@
       box-shadow: 0 0 30px var(--pro-glow);
     }
     .price-card.popular::before {
-      content: '🔥 Популярно';
+      content: 'Popular';
       position: absolute;
       top: -12px;
       left: 50%;
@@ -285,11 +285,11 @@
       color: var(--muted);
     }
     .price-card ul li::before {
-      content: '✓ ';
+      content: '\2713 ';
       color: var(--accent2);
     }
     .price-card ul li.pro-only::before {
-      content: '⭐ ';
+      content: '\2B50 ';
       color: var(--pro);
     }
 
@@ -339,6 +339,45 @@
       overflow-x: auto;
       color: var(--accent2);
     }
+
+    /* What's New */
+    .whatsnew {
+      padding: 4rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .whatsnew h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+    .changelog {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+    }
+    .changelog .version {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .changelog ul {
+      list-style: none;
+      padding: 0;
+    }
+    .changelog ul li {
+      padding: 0.25rem 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .changelog ul li::before {
+      content: '\2192 ';
+      color: var(--accent);
+    }
+    .changelog .fix { color: var(--accent2); }
+    .changelog .fix::before { content: '\2713 '; color: var(--accent2); }
 
     /* Footer */
     footer {
@@ -392,13 +431,6 @@
       .features-grid { grid-template-columns: 1fr; }
       nav .links a.hide-mobile { display: none; }
     }
-
-    /* Animations */
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-    .float-anim { animation: float 3s ease-in-out infinite; }
   </style>
 </head>
 <body>
@@ -428,18 +460,18 @@
   <!-- Hero Section -->
   <section class="hero">
     <h1>Dynamic SVG Badges<br>for GitHub Profiles</h1>
-    <p>Generate beautiful, customizable badges that showcase your GitHub stats, languages, activity, and more — all in pure SVG.</p>
+    <p>Generate beautiful, customizable badges that showcase your GitHub stats, languages, activity, and more — all in pure SVG with no emoji dependencies.</p>
     <div class="cta-group">
-      <a href="#quickstart" class="btn btn-primary">Get Started →</a>
+      <a href="#quickstart" class="btn btn-primary">Get Started &rarr;</a>
       <a href="https://github.com/sochiautoparts/devbadge" target="_blank" class="btn btn-secondary">View on GitHub</a>
-      <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro">⭐ Get Pro</a>
+      <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro">Get Pro</a>
     </div>
   </section>
 
   <!-- Demo Badges -->
   <section class="demo-badges">
     <h2>Live Demo</h2>
-    <div class="badge-grid float-anim">
+    <div class="badge-grid">
       <!-- Commit Badge Demo -->
       <svg xmlns="http://www.w3.org/2000/svg" width="340" height="50" viewBox="0 0 340 50">
         <rect width="340" height="50" rx="6" fill="#0d1b2a" />
@@ -450,7 +482,6 @@
         <circle cx="24" cy="25" r="2" fill="#415a77" />
         <line x1="24" y1="19" x2="24" y2="10" stroke="#415a77" stroke-width="2" />
         <line x1="24" y1="31" x2="24" y2="40" stroke="#415a77" stroke-width="2" />
-        <polyline points="140,38 146,32 152,34 158,28 164,30 170,22 176,26 182,20 188,24 194,18 200,22 206,16 212,20 218,14 224,18 230,12 236,16 242,10 248,14 254,12 260,16 266,10 272,14 278,18 284,12 290,16 296,20 302,14 308,18 314,16 320,20" fill="none" stroke="#415a77" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
         <a href="https://github.com/sochiautoparts/devbadge" target="_blank">
           <text x="4" y="46" font-family="Arial, sans-serif" font-size="8" fill="#666666" opacity="0.6">DevBadge</text>
         </a>
@@ -471,11 +502,6 @@
         <text x="104" y="46" font-family="Arial, sans-serif" font-size="10" fill="#e0e1dd">JS 27%</text>
         <circle cx="158" cy="42" r="4" fill="#3178c6" />
         <text x="166" y="46" font-family="Arial, sans-serif" font-size="10" fill="#e0e1dd">TS 17%</text>
-        <circle cx="222" cy="42" r="4" fill="#dea584" />
-        <text x="230" y="46" font-family="Arial, sans-serif" font-size="10" fill="#e0e1dd">Rust 9%</text>
-        <a href="https://github.com/sochiautoparts/devbadge" target="_blank">
-          <text x="4" y="46" font-family="Arial, sans-serif" font-size="8" fill="#666666" opacity="0.6">DevBadge</text>
-        </a>
       </svg>
 
       <!-- Stats Badge Demo -->
@@ -483,59 +509,40 @@
         <rect width="340" height="100" rx="6" fill="#0d1b2a" />
         <rect x="0.5" y="0.5" width="339" height="99" rx="5.5" fill="none" stroke="#415a77" stroke-width="1" opacity="0.3" />
         <text x="170" y="14" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#e0e1dd" text-anchor="middle">GitHub Stats</text>
-        <text x="14" y="24" font-family="Arial, sans-serif" font-size="9" fill="#778da9">★ Stars</text>
+        <text x="14" y="24" font-family="Arial, sans-serif" font-size="9" fill="#778da9">Stars</text>
         <text x="14" y="38" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#415a77">2.4k</text>
-        <text x="119" y="24" font-family="Arial, sans-serif" font-size="9" fill="#778da9">⑂ Forks</text>
+        <text x="119" y="24" font-family="Arial, sans-serif" font-size="9" fill="#778da9">Forks</text>
         <text x="119" y="38" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#778da9">380</text>
-        <text x="224" y="24" font-family="Arial, sans-serif" font-size="9" fill="#778da9">📦 Repos</text>
+        <text x="224" y="24" font-family="Arial, sans-serif" font-size="9" fill="#778da9">Repos</text>
         <text x="224" y="38" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#415a77">42</text>
-        <text x="14" y="52" font-family="Arial, sans-serif" font-size="9" fill="#778da9">👥 Followers</text>
+        <text x="14" y="52" font-family="Arial, sans-serif" font-size="9" fill="#778da9">Followers</text>
         <text x="14" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#778da9">156</text>
-        <text x="119" y="52" font-family="Arial, sans-serif" font-size="9" fill="#778da9">🔀 PRs</text>
+        <text x="119" y="52" font-family="Arial, sans-serif" font-size="9" fill="#778da9">PRs</text>
         <text x="119" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#415a77">89</text>
-        <text x="224" y="52" font-family="Arial, sans-serif" font-size="9" fill="#778da9">❗ Issues</text>
+        <text x="224" y="52" font-family="Arial, sans-serif" font-size="9" fill="#778da9">Issues</text>
         <text x="224" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#415a77">34</text>
-        <a href="https://github.com/sochiautoparts/devbadge" target="_blank">
-          <text x="4" y="96" font-family="Arial, sans-serif" font-size="8" fill="#666666" opacity="0.6">DevBadge</text>
-        </a>
       </svg>
+    </div>
+  </section>
 
-      <!-- Activity Badge Demo -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="340" height="85" viewBox="0 0 340 85">
-        <rect width="340" height="85" rx="6" fill="#0d1b2a" />
-        <rect x="0.5" y="0.5" width="339" height="84" rx="5.5" fill="none" stroke="#415a77" stroke-width="1" opacity="0.3" />
-        <text x="170" y="16" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#e0e1dd" text-anchor="middle">Contribution Activity</text>
-        <!-- Mini heatmap grid -->
-        <g transform="translate(12, 24)">
-          <!-- Week 1 -->
-          <rect x="0" y="0" width="8" height="8" rx="1" fill="#1b263b" />
-          <rect x="0" y="10" width="8" height="8" rx="1" fill="#415a7733" />
-          <rect x="0" y="20" width="8" height="8" rx="1" fill="#415a7766" />
-          <rect x="0" y="30" width="8" height="8" rx="1" fill="#415a7799" />
-          <rect x="0" y="40" width="8" height="8" rx="1" fill="#415a77" />
-          <rect x="0" y="50" width="8" height="8" rx="1" fill="#1b263b" />
-          <rect x="0" y="60" width="8" height="8" rx="1" fill="#1b263b" />
-          <!-- Week 2 -->
-          <rect x="10" y="0" width="8" height="8" rx="1" fill="#415a7733" />
-          <rect x="10" y="10" width="8" height="8" rx="1" fill="#415a7766" />
-          <rect x="10" y="20" width="8" height="8" rx="1" fill="#415a7799" />
-          <rect x="10" y="30" width="8" height="8" rx="1" fill="#415a77" />
-          <rect x="10" y="40" width="8" height="8" rx="1" fill="#1b263b" />
-          <rect x="10" y="50" width="8" height="8" rx="1" fill="#415a7733" />
-          <rect x="10" y="60" width="8" height="8" rx="1" fill="#1b263b" />
-          <!-- Week 3-16 (simplified) -->
-          <rect x="20" y="0" width="8" height="8" rx="1" fill="#415a7766" /><rect x="30" y="0" width="8" height="8" rx="1" fill="#415a7733" /><rect x="40" y="0" width="8" height="8" rx="1" fill="#415a7799" /><rect x="50" y="0" width="8" height="8" rx="1" fill="#1b263b" /><rect x="60" y="0" width="8" height="8" rx="1" fill="#415a7766" /><rect x="70" y="0" width="8" height="8" rx="1" fill="#415a77" /><rect x="80" y="0" width="8" height="8" rx="1" fill="#415a7733" /><rect x="90" y="0" width="8" height="8" rx="1" fill="#1b263b" /><rect x="100" y="0" width="8" height="8" rx="1" fill="#415a7799" /><rect x="110" y="0" width="8" height="8" rx="1" fill="#415a7766" /><rect x="120" y="0" width="8" height="8" rx="1" fill="#415a7733" /><rect x="130" y="0" width="8" height="8" rx="1" fill="#415a77" /><rect x="140" y="0" width="8" height="8" rx="1" fill="#415a7766" /><rect x="150" y="0" width="8" height="8" rx="1" fill="#415a7733" />
-          <rect x="20" y="10" width="8" height="8" rx="1" fill="#415a7799" /><rect x="30" y="10" width="8" height="8" rx="1" fill="#415a7766" /><rect x="40" y="10" width="8" height="8" rx="1" fill="#1b263b" /><rect x="50" y="10" width="8" height="8" rx="1" fill="#415a7733" /><rect x="60" y="10" width="8" height="8" rx="1" fill="#415a7799" /><rect x="70" y="10" width="8" height="8" rx="1" fill="#415a7766" /><rect x="80" y="10" width="8" height="8" rx="1" fill="#415a77" /><rect x="90" y="10" width="8" height="8" rx="1" fill="#415a7733" /><rect x="100" y="10" width="8" height="8" rx="1" fill="#1b263b" /><rect x="110" y="10" width="8" height="8" rx="1" fill="#415a7766" /><rect x="120" y="10" width="8" height="8" rx="1" fill="#415a7799" /><rect x="130" y="10" width="8" height="8" rx="1" fill="#415a7733" /><rect x="140" y="10" width="8" height="8" rx="1" fill="#415a77" /><rect x="150" y="10" width="8" height="8" rx="1" fill="#415a7766" />
-          <rect x="20" y="20" width="8" height="8" rx="1" fill="#415a7733" /><rect x="30" y="20" width="8" height="8" rx="1" fill="#1b263b" /><rect x="40" y="20" width="8" height="8" rx="1" fill="#415a7799" /><rect x="50" y="20" width="8" height="8" rx="1" fill="#415a7766" /><rect x="60" y="20" width="8" height="8" rx="1" fill="#415a7733" /><rect x="70" y="20" width="8" height="8" rx="1" fill="#1b263b" /><rect x="80" y="20" width="8" height="8" rx="1" fill="#415a7766" /><rect x="90" y="20" width="8" height="8" rx="1" fill="#415a7799" /><rect x="100" y="20" width="8" height="8" rx="1" fill="#415a7733" /><rect x="110" y="20" width="8" height="8" rx="1" fill="#415a77" /><rect x="120" y="20" width="8" height="8" rx="1" fill="#415a7766" /><rect x="130" y="20" width="8" height="8" rx="1" fill="#415a7733" /><rect x="140" y="20" width="8" height="8" rx="1" fill="#1b263b" /><rect x="150" y="20" width="8" height="8" rx="1" fill="#415a7799" />
-          <rect x="20" y="30" width="8" height="8" rx="1" fill="#1b263b" /><rect x="30" y="30" width="8" height="8" rx="1" fill="#415a7733" /><rect x="40" y="30" width="8" height="8" rx="1" fill="#415a7766" /><rect x="50" y="30" width="8" height="8" rx="1" fill="#415a7799" /><rect x="60" y="30" width="8" height="8" rx="1" fill="#415a77" /><rect x="70" y="30" width="8" height="8" rx="1" fill="#415a7733" /><rect x="80" y="30" width="8" height="8" rx="1" fill="#1b263b" /><rect x="90" y="30" width="8" height="8" rx="1" fill="#415a7766" /><rect x="100" y="30" width="8" height="8" rx="1" fill="#415a7799" /><rect x="110" y="30" width="8" height="8" rx="1" fill="#415a7733" /><rect x="120" y="30" width="8" height="8" rx="1" fill="#1b263b" /><rect x="130" y="30" width="8" height="8" rx="1" fill="#415a7766" /><rect x="140" y="30" width="8" height="8" rx="1" fill="#415a7799" /><rect x="150" y="30" width="8" height="8" rx="1" fill="#415a7733" />
-          <rect x="20" y="40" width="8" height="8" rx="1" fill="#415a7766" /><rect x="30" y="40" width="8" height="8" rx="1" fill="#415a7799" /><rect x="40" y="40" width="8" height="8" rx="1" fill="#415a7733" /><rect x="50" y="40" width="8" height="8" rx="1" fill="#1b263b" /><rect x="60" y="40" width="8" height="8" rx="1" fill="#415a7766" /><rect x="70" y="40" width="8" height="8" rx="1" fill="#415a7799" /><rect x="80" y="40" width="8" height="8" rx="1" fill="#415a7733" /><rect x="90" y="40" width="8" height="8" rx="1" fill="#1b263b" /><rect x="100" y="40" width="8" height="8" rx="1" fill="#415a7766" /><rect x="110" y="40" width="8" height="8" rx="1" fill="#415a7799" /><rect x="120" y="40" width="8" height="8" rx="1" fill="#415a77" /><rect x="130" y="40" width="8" height="8" rx="1" fill="#415a7766" /><rect x="140" y="40" width="8" height="8" rx="1" fill="#415a7733" /><rect x="150" y="40" width="8" height="8" rx="1" fill="#415a7799" />
-          <rect x="20" y="50" width="8" height="8" rx="1" fill="#1b263b" /><rect x="30" y="50" width="8" height="8" rx="1" fill="#415a7733" /><rect x="40" y="50" width="8" height="8" rx="1" fill="#415a7766" /><rect x="50" y="50" width="8" height="8" rx="1" fill="#415a7733" /><rect x="60" y="50" width="8" height="8" rx="1" fill="#1b263b" /><rect x="70" y="50" width="8" height="8" rx="1" fill="#415a7766" /><rect x="80" y="50" width="8" height="8" rx="1" fill="#415a7799" /><rect x="90" y="50" width="8" height="8" rx="1" fill="#415a7766" /><rect x="100" y="50" width="8" height="8" rx="1" fill="#415a7733" /><rect x="110" y="50" width="8" height="8" rx="1" fill="#1b263b" /><rect x="120" y="50" width="8" height="8" rx="1" fill="#415a7766" /><rect x="130" y="50" width="8" height="8" rx="1" fill="#415a7799" /><rect x="140" y="50" width="8" height="8" rx="1" fill="#415a7733" /><rect x="150" y="50" width="8" height="8" rx="1" fill="#1b263b" />
-          <rect x="20" y="60" width="8" height="8" rx="1" fill="#415a7733" /><rect x="30" y="60" width="8" height="8" rx="1" fill="#1b263b" /><rect x="40" y="60" width="8" height="8" rx="1" fill="#415a7733" /><rect x="50" y="60" width="8" height="8" rx="1" fill="#415a7766" /><rect x="60" y="60" width="8" height="8" rx="1" fill="#415a7733" /><rect x="70" y="60" width="8" height="8" rx="1" fill="#1b263b" /><rect x="80" y="60" width="8" height="8" rx="1" fill="#415a7733" /><rect x="90" y="60" width="8" height="8" rx="1" fill="#415a7766" /><rect x="100" y="60" width="8" height="8" rx="1" fill="#415a7733" /><rect x="110" y="60" width="8" height="8" rx="1" fill="#1b263b" /><rect x="120" y="60" width="8" height="8" rx="1" fill="#415a7733" /><rect x="130" y="60" width="8" height="8" rx="1" fill="#415a7766" /><rect x="140" y="60" width="8" height="8" rx="1" fill="#415a7733" /><rect x="150" y="60" width="8" height="8" rx="1" fill="#1b263b" />
-        </g>
-        <a href="https://github.com/sochiautoparts/devbadge" target="_blank">
-          <text x="4" y="81" font-family="Arial, sans-serif" font-size="8" fill="#666666" opacity="0.6">DevBadge</text>
-        </a>
-      </svg>
+  <!-- What's New -->
+  <section class="whatsnew" id="whatsnew">
+    <h2>What's New in v2.0</h2>
+    <div class="changelog">
+      <div class="version">v2.0.0 — Major Fix Release</div>
+      <ul>
+        <li class="fix">Fixed GitHub Action: --badges vs --badge argument mismatch</li>
+        <li class="fix">Fixed cache timestamp TypeError (ISO string vs Unix timestamp)</li>
+        <li class="fix">Fixed commit count: now shows lifetime total, not just current year</li>
+        <li class="fix">Fixed SVG rendering: replaced all emoji with SVG icons</li>
+        <li class="fix">Fixed animations: now use SMIL that works on GitHub</li>
+        <li class="fix">Real Spotify badge: fetches now-playing via Spotify API</li>
+        <li class="fix">Real Weather badge: fetches via wttr.in (no API key needed)</li>
+        <li class="fix">Custom colors: now actually applied from config</li>
+        <li class="fix">Cache security: HMAC-signed cache prevents manual bypass</li>
+        <li>API rate limiting with in-memory cache and retry logic</li>
+        <li>Profile badge with SVG icons (no emoji)</li>
+      </ul>
     </div>
   </section>
 
@@ -544,120 +551,128 @@
     <h2>Features</h2>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="icon">📊</div>
+        <div class="icon" style="font-size:1.5rem">&#x1F4CA;</div>
         <h3>Commit Badges</h3>
-        <p>Show your commit count with a beautiful sparkline graph from the last 30 days.</p>
+        <p>Show your lifetime commit count with a sparkline graph. Counts across all years, not just current.</p>
       </div>
       <div class="feature-card">
-        <div class="icon">🌈</div>
+        <div class="icon" style="font-size:1.5rem">&#x1F308;</div>
         <h3>Language Badges</h3>
         <p>Top languages as a colorful bar with percentage breakdowns.</p>
       </div>
       <div class="feature-card">
-        <div class="icon">🔥</div>
+        <div class="icon" style="font-size:1.5rem">&#x1F525;</div>
         <h3>Activity Heatmap</h3>
         <p>GitHub-style contribution heatmap right in your profile README.</p>
       </div>
       <div class="feature-card">
-        <div class="icon">📈</div>
+        <div class="icon" style="font-size:1.5rem">&#x1F4C8;</div>
         <h3>Stats Overview</h3>
-        <p>Stars, forks, repos, followers, PRs, and issues — all at a glance.</p>
+        <p>Stars, forks, repos, followers, PRs, and issues — all with SVG icons, no emoji.</p>
       </div>
       <div class="feature-card">
-        <div class="icon">🎨</div>
-        <h3>8 Themes</h3>
-        <p>Default, Dracula, GitHub Dark, Solarized, Nord, Monokai, Neon, and Aurora.</p>
+        <div class="icon" style="font-size:1.5rem">&#x1F3A8;</div>
+        <h3>8 Themes + Custom Colors</h3>
+        <p>6 free themes, 2 Pro themes. Plus custom color overrides for Pro users.</p>
       </div>
       <div class="feature-card">
-        <div class="icon">⚡</div>
+        <div class="icon" style="font-size:1.5rem">&#x26A1;</div>
         <h3>GitHub Action</h3>
         <p>Auto-update your badges on a schedule with a single workflow file.</p>
       </div>
       <div class="feature-card">
-        <div class="icon">☕</div>
+        <div class="icon" style="font-size:1.5rem">&#x2615;</div>
         <h3>Coffee Badge <span class="pro-badge">PRO</span></h3>
-        <p>Fun "bought X coffees" status badge for supporters.</p>
+        <p>"Bought X coffees" badge with SVG coffee cup icon. Renders everywhere.</p>
       </div>
       <div class="feature-card">
-        <div class="icon">🎵</div>
+        <div class="icon" style="font-size:1.5rem">&#x1F3B5;</div>
         <h3>Spotify Badge <span class="pro-badge">PRO</span></h3>
-        <p>Now-playing badge showing your current Spotify track.</p>
+        <p>Real now-playing badge via Spotify API. Shows track name, artist, and playing status with SMIL animation.</p>
       </div>
       <div class="feature-card">
-        <div class="icon">🌤️</div>
+        <div class="icon" style="font-size:1.5rem">&#x2601;</div>
         <h3>Weather Badge <span class="pro-badge">PRO</span></h3>
-        <p>Current weather conditions right in your profile.</p>
+        <p>Real weather via wttr.in API. No API key needed. Shows temp, condition, and dynamic SVG weather icon.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon" style="font-size:1.5rem">&#x2728;</div>
+        <h3>SMIL Animations <span class="pro-badge">PRO</span></h3>
+        <p>Pulse, gradient, typing, sparkle — all use SMIL &lt;animate&gt; that works on GitHub. No CSS &lt;style&gt; tags.</p>
       </div>
     </div>
   </section>
 
   <!-- Pricing -->
   <section class="pricing" id="pricing">
-    <h2>Цены / Pricing</h2>
-    <p class="subtitle">Выберите подходящий план — оплата через @allstarspay_bot</p>
+    <h2>Pricing</h2>
+    <p class="subtitle">Purchase via @allstarspay_bot on Telegram</p>
     <div class="pricing-grid">
       <!-- Free -->
       <div class="price-card">
         <div class="plan-name">Free</div>
         <div class="plan-price">$0</div>
-        <div class="plan-period">Навсегда бесплатно</div>
+        <div class="plan-period">Free forever</div>
         <ul>
-          <li>5 базовых бейджей</li>
-          <li>6 бесплатных тем</li>
+          <li>5 basic badge types</li>
+          <li>6 free themes</li>
           <li>GitHub Action</li>
-          <li>Водяной знак DevBadge</li>
+          <li>DevBadge watermark</li>
+          <li>API rate limiting</li>
         </ul>
-        <a href="#quickstart" class="btn btn-secondary" style="width:100%;justify-content:center;">Начать бесплатно</a>
+        <a href="#quickstart" class="btn btn-secondary" style="width:100%;justify-content:center;">Get Started Free</a>
       </div>
 
       <!-- Monthly -->
       <div class="price-card popular">
         <div class="plan-name">Pro Monthly</div>
-        <div class="plan-price">⭐149<span>/мес</span></div>
-        <div class="plan-period">Ежемесячная подписка</div>
+        <div class="plan-price">&#x2B50;149<span>/mo</span></div>
+        <div class="plan-period">Monthly subscription</div>
         <ul>
-          <li>Все 8 типов бейджей</li>
-          <li class="pro-only">Анимации (pulse, gradient, typing, sparkle)</li>
-          <li class="pro-only">2 Pro-темы (Neon, Aurora)</li>
-          <li class="pro-only">Без водяного знака</li>
-          <li class="pro-only">Кастомные цвета</li>
+          <li>All 8 badge types</li>
+          <li class="pro-only">Real Spotify now-playing (API)</li>
+          <li class="pro-only">Real Weather (wttr.in)</li>
+          <li class="pro-only">SMIL animations (GitHub-compatible)</li>
+          <li class="pro-only">2 Pro themes (Neon, Aurora)</li>
+          <li class="pro-only">Custom colors</li>
+          <li class="pro-only">No watermark</li>
         </ul>
-        <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro" style="width:100%;justify-content:center;">Купить Pro</a>
+        <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro" style="width:100%;justify-content:center;">Get Pro</a>
       </div>
 
       <!-- Yearly -->
       <div class="price-card">
         <div class="plan-name">Pro Yearly</div>
-        <div class="plan-price">⭐999<span>/год</span></div>
-        <div class="plan-period">Экономия 44%!</div>
+        <div class="plan-price">&#x2B50;999<span>/yr</span></div>
+        <div class="plan-period">Save 44%!</div>
         <ul>
-          <li>Всё из Pro Monthly</li>
-          <li class="pro-only">Выгодная годовая цена</li>
-          <li class="pro-only">Приоритетная поддержка</li>
+          <li>Everything in Pro Monthly</li>
+          <li class="pro-only">Best annual price</li>
+          <li class="pro-only">Priority support</li>
         </ul>
-        <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro" style="width:100%;justify-content:center;">Купить Pro</a>
+        <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro" style="width:100%;justify-content:center;">Get Pro</a>
       </div>
 
       <!-- Lifetime -->
       <div class="price-card">
         <div class="plan-name">Pro Lifetime</div>
-        <div class="plan-price">⭐2999</div>
-        <div class="plan-period">Навсегда — платите один раз</div>
+        <div class="plan-price">&#x2B50;2999</div>
+        <div class="plan-period">Forever — pay once</div>
         <ul>
-          <li>Всё из Pro</li>
-          <li class="pro-only">Пожизненный доступ</li>
-          <li class="pro-only">Все будущие обновления</li>
-          <li class="pro-only">Ранний доступ к новым фичам</li>
+          <li>Everything in Pro</li>
+          <li class="pro-only">Lifetime access</li>
+          <li class="pro-only">All future updates</li>
+          <li class="pro-only">Early access to new features</li>
         </ul>
-        <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro" style="width:100%;justify-content:center;">Купить Pro</a>
+        <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro" style="width:100%;justify-content:center;">Get Pro</a>
       </div>
     </div>
 
     <!-- StarsPay -->
     <div class="starspay">
-      <h3>💳 Оплата через StarsPay Bot</h3>
-      <p>Покупка лицензии DevBadge Pro через Telegram бота @allstarspay_bot. Получите ключ формата <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;">SP-DVB-xxxx-xxxx</code> мгновенно после оплаты.</p>
-      <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro">Открыть @allstarspay_bot →</a>
+      <h3>Payment via StarsPay Bot</h3>
+      <p>Purchase DevBadge Pro license via Telegram bot @allstarspay_bot. Receive a key in format <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;">SP-DVB-xxxx-xxxx</code> instantly after payment. Cache entries are HMAC-signed for security.</p>
+      <a href="https://t.me/allstarspay_bot" target="_blank" class="btn btn-pro">Open @allstarspay_bot &rarr;</a>
     </div>
   </section>
 
@@ -697,6 +712,22 @@
     <div class="step">
       <div class="step-num">4</div>
       <div class="step-content">
+        <h3>Pro Features (Optional)</h3>
+        <p>Activate Pro for weather, Spotify, animations, and custom colors:</p>
+        <div class="code-block"># Weather badge (wttr.in, no API key)
+devbadge generate --user YOU --badge weather --city "San Francisco"
+
+# Spotify now-playing
+devbadge generate --user YOU --badge spotify --spotify-token "your_token"
+
+# Custom colors
+devbadge generate --user YOU --all --color accent=#ff6600</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
         <h3>Auto-Update (GitHub Action)</h3>
         <p>Create <code>.github/workflows/update-badges.yml</code>:</p>
         <div class="code-block">name: Update Badges
@@ -715,7 +746,7 @@ jobs:
       - uses: sochiautoparts/devbadge@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          badges: commits,languages,stats,activity
+          badge: commits,languages,stats,activity
           theme: dracula</div>
       </div>
     </div>
@@ -724,11 +755,11 @@ jobs:
   <!-- Footer -->
   <footer>
     <p>
-      <a href="https://github.com/sochiautoparts/devbadge">GitHub</a> ·
-      <a href="https://t.me/allstarspay_bot">StarsPay Bot</a> ·
+      <a href="https://github.com/sochiautoparts/devbadge">GitHub</a> &middot;
+      <a href="https://t.me/allstarspay_bot">StarsPay Bot</a> &middot;
       <a href="https://github.com/sochiautoparts/devbadge/blob/main/LICENSE">MIT License</a>
     </p>
-    <p style="margin-top:0.5rem;">Made with ❤️ by <a href="https://github.com/sochiautoparts">sochiautoparts</a></p>
+    <p style="margin-top:0.5rem;">Made by <a href="https://github.com/sochiautoparts">sochiautoparts</a></p>
   </footer>
 
 </body>

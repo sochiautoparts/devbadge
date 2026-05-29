@@ -1,6 +1,6 @@
 """DevBadge — Dynamic SVG badges for GitHub profiles."""
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 __author__ = "sochiautoparts"
 
 from devbadge.badges import (
@@ -11,6 +11,7 @@ from devbadge.badges import (
     CoffeeBadge,
     SpotifyBadge,
     WeatherBadge,
+    ProfileBadge,
     generate_badge,
 )
 from devbadge.themes import get_theme, THEMES
@@ -24,6 +25,7 @@ __all__ = [
     "CoffeeBadge",
     "SpotifyBadge",
     "WeatherBadge",
+    "ProfileBadge",
     "generate_badge",
     "get_theme",
     "THEMES",
