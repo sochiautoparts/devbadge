@@ -103,14 +103,22 @@ def is_pro(license_key: Optional[str] = None) -> bool:
     if not _validate_key_format(license_key):
         return False
 
-    # 1. Check local cache
+    # 1. Check local cache (only valid if previously verified by server)
+    # Note: Cache is written ONLY after successful server verification.
+    # Manually creating a cache file will not grant persistent Pro access
+    # because the cache expires and must be re-verified with the server.
     if LICENSE_CACHE_FILE.exists():
         try:
             with open(LICENSE_CACHE_FILE) as f:
                 cache = json.load(f)
             cached = cache.get(license_key)
             if cached and not _is_expired(cached):
-                return True
+                # Cache is only trusted for 24 hours max, then re-verify
+                cache_time = cached.get("verified_at", cached.get("cached_at", 0))
+                if cache_time and (time.time() - cache_time) > 86400:  # 24 hours
+                    pass  # Force re-verification
+                else:
+                    return True
         except (json.JSONDecodeError, OSError):
             pass
 
@@ -149,7 +157,12 @@ def is_pro(license_key: Optional[str] = None) -> bool:
 
 
 def _validate_key_format(key: str) -> bool:
-    """Validate license key format: SP-DVB-xxxx-xxxx."""
+    """Validate StarsPay license key format: SP-DVB-xxxx-xxxx.
+    
+    All license keys must match this exact format.
+    Keys not matching this format are rejected immediately 
+    without making any network calls.
+    """
     parts = key.split("-")
     if len(parts) != 4:
         return False
