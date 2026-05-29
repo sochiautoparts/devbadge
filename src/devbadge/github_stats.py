@@ -260,8 +260,34 @@ def fetch_stats(username: str, token: Optional[str] = None) -> UserStats:
         except Exception:
             pass
     else:
-        # Estimate commits from repos (not accurate but better than 0)
-        stats.total_commits = sum(r.get("size", 0) for r in repos[:30])
+        # No token — use commit count from public repos via Link header
+        # GitHub REST API returns a Link header with last page number = total commits
+        import re
+        total = 0
+        for repo in repos[:10]:
+            try:
+                full_name = repo.get("full_name", "")
+                if not full_name:
+                    continue
+                with httpx.Client(timeout=10) as client:
+                    r = client.get(
+                        f"{GITHUB_API}/repos/{full_name}/commits?per_page=1",
+                        headers={"Accept": "application/vnd.github+json"},
+                    )
+                    # Parse Link header for last page number (= total commits)
+                    link_header = r.headers.get("Link", "")
+                    if 'rel="last"' in link_header:
+                        match = re.search(r'page=(\d+)>; rel="last"', link_header)
+                        if match:
+                            total += int(match.group(1))
+                            continue
+                    # Fallback: count results in response
+                    if r.status_code == 200:
+                        data = r.json()
+                        total += len(data) if isinstance(data, list) else 0
+            except Exception:
+                continue
+        stats.total_commits = total
 
     # Languages
     stats.languages = aggregate_languages(repos, username, token)
