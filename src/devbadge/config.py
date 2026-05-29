@@ -15,7 +15,7 @@ LICENSE_CACHE_FILE = DEFAULT_CONFIG_DIR / "license_cache.json"
 
 REPO_URL = "https://github.com/sochiautoparts/devbadge"
 LICENSES_URL = "https://raw.githubusercontent.com/sochiautoparts/stars-pay-bot/main/data/licenses.json"
-STARSPAY_API_URL = "https://api.starspay.io/v1/licenses"
+STARSPAY_API_URL = ""  # Primary: licenses.json; set STARSPAY_API_URL env for REST API fallback
 
 BADGE_TYPES = [
     "commits",
@@ -127,16 +127,17 @@ def is_pro(license_key: Optional[str] = None) -> bool:
     except Exception:
         pass
 
-    # 3. REST API fallback
+    # 3. REST API fallback (if STARSPAY_API_URL is set)
+    api_url = os.getenv("STARSPAY_API_URL", STARSPAY_API_URL)
     api_key = os.getenv("STARSPAY_API_KEY", "")
-    if api_key:
+    if api_url and api_key:
         try:
             import httpx
             with httpx.Client(timeout=10) as client:
-                r = client.get(
-                    f"{STARSPAY_API_URL}/verify",
-                    params={"key": license_key, "product": "devbadge"},
-                    headers={"Authorization": f"Bearer {api_key}"},
+                r = client.post(
+                    f"{api_url}/api/v1/verify",
+                    json={"key": license_key},
+                    headers={"X-API-Key": api_key},
                 )
                 if r.status_code == 200 and r.json().get("valid"):
                     _cache_license(license_key, valid=True)
@@ -156,20 +157,37 @@ def _validate_key_format(key: str) -> bool:
 
 
 def _check_license_in_data(key: str, data: dict) -> bool:
-    """Check if a license key exists in the licenses data."""
+    """Check if a license key exists in the licenses data.
+    
+    The licenses.json stores key_hash (SHA-256 truncated to 16 hex chars)
+    instead of plain keys for security. We compute the hash and match.
+    """
+    import hashlib
+    key_hash = hashlib.sha256(key.encode()).hexdigest()[:16]
+    
     licenses = data if isinstance(data, list) else data.get("licenses", [])
     for lic in licenses:
-        if lic.get("key") == key and lic.get("product") == "devbadge":
-            expiry = lic.get("expires_at")
-            if expiry:
-                from datetime import datetime, timezone
-                try:
-                    exp = datetime.fromisoformat(expiry.replace("Z", "+00:00"))
-                    if exp < datetime.now(timezone.utc):
+        # Match by key_hash (primary) or plain key (legacy)
+        matches = False
+        if lic.get("key_hash") == key_hash:
+            matches = True
+        elif lic.get("key") == key:
+            matches = True
+        
+        if matches:
+            # Check project prefix matches
+            key_prefix = key[:7]  # SP-DVB-
+            if lic.get("key_prefix", "").startswith("SP-DVB") or "DVB" in key:
+                # Check active status
+                if not lic.get("active", True):
+                    return False
+                # Check expiration
+                expires_at = lic.get("expires_at", 0)
+                if expires_at and expires_at > 0:
+                    import time
+                    if time.time() > expires_at:
                         return False
-                except (ValueError, TypeError):
-                    pass
-            return lic.get("active", True)
+                return True
     return False
 
 
