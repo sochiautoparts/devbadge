@@ -1,0 +1,43 @@
+name: Update Badges
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install DevBadge
+        run: pip install -e .
+
+      - name: Generate Badges
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LICENSE_KEY: ${{ secrets.DEVBADGE_LICENSE_KEY }}
+        run: |
+          devbadge generate \
+            --user ${{ github.repository_owner }} \
+            --all \
+            --theme dracula \
+            --output ./badges \
+            --token $GITHUB_TOKEN
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "devbadge[bot]@users.noreply.github.com"
+          git config --local user.name "devbadge[bot]"
+          git add badges/
+          git diff --quiet && git diff --staged --quiet || git commit -m "🔄 Auto-update badges [skip ci]"
+          git push

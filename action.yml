@@ -1,0 +1,51 @@
+name: 'DevBadge Generator'
+description: 'Generate dynamic SVG badges for your GitHub profile'
+author: 'sochiautoparts'
+branding:
+  icon: 'award'
+  color: 'blue'
+
+inputs:
+  github-token:
+    description: 'GitHub token for API access'
+    required: true
+  badges:
+    description: 'Comma-separated list of badges to generate'
+    default: 'commits,languages,stats,activity'
+  theme:
+    description: 'Color theme'
+    default: 'default'
+  output-dir:
+    description: 'Output directory for SVG files'
+    default: './badges'
+  license-key:
+    description: 'DevBadge Pro license key'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install DevBadge
+      shell: bash
+      run: pip install devbadge
+
+    - name: Generate Badges
+      shell: bash
+      run: |
+        devbadge generate \
+          --user ${{ github.repository_owner }} \
+          --badges "${{ inputs.badges }}" \
+          --theme ${{ inputs.theme }} \
+          --output ${{ inputs.output-dir }} \
+          --token ${{ inputs.github-token }} \
+          ${{ inputs.license-key && format('--license {0}', inputs.license-key) || '' }}
+
+    - name: Commit Badges
+      shell: bash
+      run: |
+        cd ${{ inputs.output-dir }}
+        git config --local user.email "devbadge[bot]@users.noreply.github.com"
+        git config --local user.name "devbadge[bot]"
+        git add -A
+        git diff --quiet && git diff --staged --quiet || git commit -m "🔄 Update DevBadge badges"
+        git push
