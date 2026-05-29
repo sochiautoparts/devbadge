@@ -169,9 +169,12 @@ class TestGenerateBadge:
         assert "Pro only" in svg
 
     def test_pro_badge_with_license(self):
-        svg = generate_badge("coffee", is_pro_user=True, username="dev", coffee_count=3)
-        assert "3" in svg
-        assert "Pro only" not in svg
+        """Test Pro badge generation with a valid license (mocked)."""
+        from unittest.mock import patch
+        with patch("devbadge.badges.is_pro", return_value=True):
+            svg = generate_badge("coffee", username="dev", coffee_count=3)
+            assert "3" in svg
+            assert "Pro only" not in svg
 
     def test_unknown_badge_type(self):
         with pytest.raises(ValueError, match="Unknown badge type"):
