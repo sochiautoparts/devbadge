@@ -128,14 +128,16 @@ from devbadge.config import is_pro
 # Pro badges (require license key)
 if is_pro("SP-DVB-xxxx-xxxx"):
     svg = generate_badge("coffee", is_pro_user=True, username="dev", coffee_count=5)
-    svg = generate_badge("spotify", is_pro_user=True, song="Bohemian Rhapsody", artist="Queen")
-    svg = generate_badge("weather", is_pro_user=True, temp="22°C", condition="Sunny")
+    svg = generate_badge("spotify", is_pro_user=True, song="Bohemian Rhapsody", artist="Queen")  # placeholder
+    svg = generate_badge("weather", is_pro_user=True, temp="22°C", condition="Sunny")  # placeholder
 
 # Animated badges (Pro only)
 from devbadge.animations import apply_animation
 svg = generate_badge("stats", stats=stats, is_pro_user=True)
 svg = apply_animation(svg, "pulse", "stats-1", is_pro=True, color="#58a6ff")
 ```
+
+> **Note:** Spotify and Weather badges are currently placeholders. Full integration with Spotify API and weather services is coming soon.
 
 ---
 
@@ -212,8 +214,8 @@ devbadge generate --user octocat --theme neon --all --license SP-DVB-xxxx-xxxx
 | Activity | `activity` | ✅ | ✅ |
 | Profile | `profile` | ✅ | ✅ |
 | Coffee | `coffee` | 🔒 | ✅ |
-| Spotify | `spotify` | 🔒 | ✅ |
-| Weather | `weather` | 🔒 | ✅ |
+| Spotify | `spotify` | 🔒 | ✅ *(placeholder)* |
+| Weather | `weather` | 🔒 | ✅ *(placeholder)* |
 
 ---
 
