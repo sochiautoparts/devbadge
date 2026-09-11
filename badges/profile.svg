@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="80" viewBox="0 0 340 80">
+  <rect width="340" height="80" rx="6" fill="#282a36" />
+  <rect x="0.5" y="0.5" width="339" height="79" rx="5.5" fill="none" stroke="#bd93f9" stroke-width="1" opacity="0.3" />
+  <text x="170" y="20" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#f8f8f2" text-anchor="middle">sochiautoparts</text>
+  <g transform="translate(18,48)">
+    <rect x="0" y="0" width="8" height="9.6" rx="1" fill="none" stroke="#6272a4" stroke-width="1.5" />
+    <line x1="0" y1="2.8" x2="8" y2="2.8" stroke="#6272a4" stroke-width="1" />
+  </g><text x="30" y="58" font-family="Arial, sans-serif" font-size="10" fill="#6272a4">12 repos</text>
+  <g transform="translate(108,48)">
+    <circle cx="2.8" cy="2.0" r="2.5" fill="#6272a4" />
+    <path d="M0.8,7.2 Q0.8,4.0 2.8,4.0 Q4.8,4.0 4.8,7.2" fill="#6272a4" opacity="0.7" />
+    <circle cx="6.0" cy="2.4" r="2" fill="#6272a4" opacity="0.6" />
+    <path d="M4.4,7.2 Q4.4,4.8 6.0,4.8 Q7.6,4.8 7.6,7.2" fill="#6272a4" opacity="0.4" />
+  </g><text x="120" y="58" font-family="Arial, sans-serif" font-size="10" fill="#6272a4">0 followers</text>
+  <g transform="translate(198, 48)">
+    <rect x="0" y="2" width="8" height="7" rx="1" fill="none" stroke="#6272a4" stroke-width="1" />
+    <line x1="2" y1="0" x2="2" y2="3" stroke="#6272a4" stroke-width="1" />
+    <line x1="6" y1="0" x2="6" y2="3" stroke="#6272a4" stroke-width="1" />
+  </g><text x="210" y="58" font-family="Arial, sans-serif" font-size="10" fill="#6272a4">1y on GitHub</text>
+  <a href="https://github.com/sochiautoparts/devbadge" target="_blank">
+    <text x="4" y="76" font-family="Arial, sans-serif" font-size="8" fill="#666666" opacity="0.6">DevBadge</text>
+  </a>
+</svg>

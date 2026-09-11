@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="100" viewBox="0 0 340 100">
+  <rect width="340" height="100" rx="6" fill="#282a36" />
+  <rect x="0.5" y="0.5" width="339" height="99" rx="5.5" fill="none" stroke="#bd93f9" stroke-width="1" opacity="0.3" />
+  <text x="170" y="14" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#f8f8f2" text-anchor="middle">GitHub Stats</text>
+  <text x="14" y="24" font-family="Arial, sans-serif" font-size="9" fill="#6272a4">Stars</text>
+    <text x="14" y="38" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#bd93f9">1</text>
+<text x="119" y="24" font-family="Arial, sans-serif" font-size="9" fill="#6272a4">Forks</text>
+    <text x="119" y="38" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#6272a4">0</text>
+<text x="224" y="24" font-family="Arial, sans-serif" font-size="9" fill="#6272a4">Repos</text>
+    <text x="224" y="38" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#bd93f9">12</text>
+<text x="14" y="52" font-family="Arial, sans-serif" font-size="9" fill="#6272a4">Followers</text>
+    <text x="14" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#6272a4">0</text>
+<text x="119" y="52" font-family="Arial, sans-serif" font-size="9" fill="#6272a4">PRs</text>
+    <text x="119" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#bd93f9">0</text>
+<text x="224" y="52" font-family="Arial, sans-serif" font-size="9" fill="#6272a4">Issues</text>
+    <text x="224" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#6272a4">2</text>
+
+  <a href="https://github.com/sochiautoparts/devbadge" target="_blank">
+    <text x="4" y="96" font-family="Arial, sans-serif" font-size="8" fill="#666666" opacity="0.6">DevBadge</text>
+  </a>
+</svg>
