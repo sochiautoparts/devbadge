@@ -2,7 +2,7 @@
   <rect width="340" height="56" rx="6" fill="#282a36" />
   <rect x="0.5" y="0.5" width="339" height="55" rx="5.5" fill="none" stroke="#bd93f9" stroke-width="1" opacity="0.3" />
   <text x="170" y="14" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#f8f8f2" text-anchor="middle">Top Languages</text>
-  <rect x="12.0" y="20" width="295.5" height="10" fill="#3572A5" /><rect x="307.5" y="20" width="18.1" height="10" fill="#f1e05a" /><rect x="325.6" y="20" width="1.1" height="10" fill="#563d7c" /><rect x="326.7" y="20" width="0.8" height="10" fill="#555555" /><rect x="327.5" y="20" width="0.3" height="10" fill="#e34c26" /><rect x="327.8" y="20" width="0.1" height="10" fill="#3178c6" /><rect x="328.0" y="20" width="0.0" height="10" fill="#384d54" /><rect x="328.0" y="20" width="0.0" height="10" fill="#41b883" />
+  <rect x="12.0" y="20" width="295.9" height="10" fill="#3572A5" /><rect x="307.9" y="20" width="17.8" height="10" fill="#f1e05a" /><rect x="325.6" y="20" width="1.1" height="10" fill="#563d7c" /><rect x="326.7" y="20" width="0.8" height="10" fill="#555555" /><rect x="327.5" y="20" width="0.3" height="10" fill="#e34c26" /><rect x="327.8" y="20" width="0.1" height="10" fill="#3178c6" /><rect x="328.0" y="20" width="0.0" height="10" fill="#384d54" /><rect x="328.0" y="20" width="0.0" height="10" fill="#41b883" />
   <circle cx="12" cy="42" r="4" fill="#3572A5" />
     <text x="20" y="46" font-family="Arial, sans-serif" font-size="10" fill="#f8f8f2">Python 94%</text>
 <circle cx="95.0" cy="42" r="4" fill="#f1e05a" />
