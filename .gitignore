@@ -20,7 +20,6 @@ env/
 *.swo
 
 # DevBadge
-badges/
 .devbadge/
 
 # OS
