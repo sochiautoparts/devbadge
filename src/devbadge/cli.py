@@ -96,10 +96,13 @@ def cmd_generate(args: argparse.Namespace) -> int:
     else:
         badge_list = [b.strip() for b in args.badges.split(",")]
 
-    # Validate theme
-    theme = get_theme(args.theme)
+    # Validate theme (remember the requested name before any fallback)
+    requested_theme_name = args.theme
+    theme = get_theme(requested_theme_name)
+    effective_theme_name = requested_theme_name
     if theme.pro_only and not pro_user:
-        print(f"  Theme '{args.theme}' is Pro-only. Falling back to 'default'.")
+        print(f"  Theme '{requested_theme_name}' is Pro-only. Falling back to 'default'.")
+        effective_theme_name = "default"
         theme = get_theme("default")
 
     # Parse custom colors
@@ -132,6 +135,9 @@ def cmd_generate(args: argparse.Namespace) -> int:
         extra_kwargs["spotify_token"] = args.spotify_token
     if args.user:
         extra_kwargs["username"] = args.user
+    if license_key:
+        # Forward the --license key so generate_badge can verify Pro status
+        extra_kwargs["license_key"] = license_key
 
     # Generate each badge
     generated = 0
@@ -144,7 +150,7 @@ def cmd_generate(args: argparse.Namespace) -> int:
             svg = generate_badge(
                 badge_type=badge_type,
                 stats=stats,
-                theme=args.theme if not (theme.pro_only and not pro_user) else "default",
+                theme=effective_theme_name,
                 is_pro_user=pro_user,
                 **extra_kwargs,
             )

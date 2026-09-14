@@ -27,23 +27,32 @@ runs:
   steps:
     - name: Install DevBadge
       shell: bash
-      run: pip install devbadge
+      run: pip install "${{ github.action_path }}"
 
     - name: Generate Badges
       shell: bash
+      env:
+        REPO_OWNER: ${{ github.repository_owner }}
+        INPUT_BADGES: ${{ inputs.badges }}
+        INPUT_THEME: ${{ inputs.theme }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        LICENSE_KEY: ${{ inputs.license-key }}
       run: |
         devbadge generate \
-          --user ${{ github.repository_owner }} \
-          --badge "${{ inputs.badges }}" \
-          --theme ${{ inputs.theme }} \
-          --output ${{ inputs.output-dir }} \
-          --token ${{ inputs.github-token }} \
-          ${{ inputs.license-key && format('--license {0}', inputs.license-key) || '' }}
+          --user "$REPO_OWNER" \
+          --badge "$INPUT_BADGES" \
+          --theme "$INPUT_THEME" \
+          --output "$OUTPUT_DIR" \
+          --token "$GITHUB_TOKEN" \
+          ${LICENSE_KEY:+--license "$LICENSE_KEY"}
 
     - name: Commit Badges
       shell: bash
+      env:
+        OUTPUT_DIR: ${{ inputs.output-dir }}
       run: |
-        cd ${{ inputs.output-dir }}
+        cd "$OUTPUT_DIR"
         git config --local user.email "devbadge[bot]@users.noreply.github.com"
         git config --local user.name "devbadge[bot]"
         git add -A

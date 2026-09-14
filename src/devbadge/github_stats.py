@@ -98,18 +98,28 @@ def _get(token: Optional[str], url: str, params: Optional[Dict] = None) -> Any:
     with httpx.Client(timeout=30) as client:
         r = client.get(url, headers=_headers(token), params=params)
 
-        # Handle rate limiting
-        if r.status_code == 403 and "rate limit" in r.text.lower():
-            reset_time = int(r.headers.get("X-RateLimit-Reset", 0))
-            if reset_time:
-                wait_time = max(reset_time - int(time.time()), 1)
-                if wait_time <= 60:  # Only wait up to 60 seconds
-                    time.sleep(wait_time + 1)
-                    r = client.get(url, headers=_headers(token), params=params)
-                else:
-                    raise RuntimeError(f"GitHub API rate limit exceeded. Resets in {wait_time}s")
+        # Handle rate limiting: secondary 429 (abuse) and primary 403 limits
+        if r.status_code == 429 or (r.status_code == 403 and "rate limit" in r.text.lower()):
+            retry_after = r.headers.get("Retry-After", "")
+            if r.status_code == 429 and retry_after:
+                # Honor Retry-After, capped at 60 seconds
+                try:
+                    wait_time = min(int(retry_after), 60)
+                except ValueError:
+                    wait_time = 60
+                time.sleep(wait_time + 1)
+                r = client.get(url, headers=_headers(token), params=params)
             else:
-                raise RuntimeError("GitHub API rate limit exceeded")
+                reset_time = int(r.headers.get("X-RateLimit-Reset", 0))
+                if reset_time:
+                    wait_time = max(reset_time - int(time.time()), 1)
+                    if wait_time <= 60:  # Only wait up to 60 seconds
+                        time.sleep(wait_time + 1)
+                        r = client.get(url, headers=_headers(token), params=params)
+                    else:
+                        raise RuntimeError(f"GitHub API rate limit exceeded. Resets in {wait_time}s")
+                else:
+                    raise RuntimeError("GitHub API rate limit exceeded")
 
         r.raise_for_status()
         data = r.json()
@@ -121,17 +131,25 @@ def _post_graphql(token: Optional[str], query: str, variables: Optional[Dict] = 
     """Execute a GraphQL query."""
     if httpx is None:
         raise RuntimeError("httpx is required for GitHub API access. Install with: pip install httpx")
-    with httpx.Client(timeout=30) as client:
-        r = client.post(
-            GITHUB_GRAPHQL,
-            headers=_headers(token),
-            json={"query": query, "variables": variables or {}},
-        )
-        r.raise_for_status()
-        data = r.json()
-        if "errors" in data:
-            raise RuntimeError(f"GraphQL error: {data['errors']}")
-        return data["data"]
+    try:
+        with httpx.Client(timeout=30) as client:
+            r = client.post(
+                GITHUB_GRAPHQL,
+                headers=_headers(token),
+                json={"query": query, "variables": variables or {}},
+            )
+            r.raise_for_status()
+            data = r.json()
+    except httpx.HTTPStatusError as e:
+        raise RuntimeError(f"GraphQL HTTP {e.response.status_code} error: {e.response.text[:200]}") from e
+    except (httpx.HTTPError, ValueError) as e:
+        # Network failures (timeout, connection error) and malformed JSON
+        raise RuntimeError(f"GraphQL request failed: {e}") from e
+    if "errors" in data:
+        raise RuntimeError(f"GraphQL error: {data['errors']}")
+    if data.get("data") is None:
+        raise RuntimeError(f"GraphQL returned no data: {data}")
+    return data["data"]
 
 
 def fetch_user_profile(username: str, token: Optional[str] = None) -> Dict:

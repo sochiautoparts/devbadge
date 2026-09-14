@@ -653,12 +653,14 @@ def generate_badge(
     stats: Optional[object] = None,
     theme: str = "default",
     is_pro_user: bool = False,
+    license_key: Optional[str] = None,
     **kwargs,
 ) -> str:
     """Generate a badge by type name.
 
-    Pro badges require a valid license key set via LICENSE_KEY env var
-    or devbadge pro activate command.
+    Pro badges require a valid license key passed via the license_key
+    argument, LICENSE_KEY/DEVBADGE_LICENSE env vars, or the config file
+    created by `devbadge pro activate`.
 
     Custom colors from config are automatically applied.
 
@@ -667,25 +669,30 @@ def generate_badge(
                     'profile', 'coffee', 'spotify', 'weather'.
         stats: UserStats object (from github_stats).
         theme: Theme name.
-        is_pro_user: Deprecated — Pro status is now verified via license.
+        is_pro_user: Explicitly asserted Pro status (e.g. the CLI has
+                    already verified the key). Never downgraded here.
+        license_key: Optional license key to verify (SP-DVB-xxxx-xxxx).
         **kwargs: Additional parameters for specific badge types.
 
     Returns:
         SVG string.
     """
-    # Always verify Pro status through the license system.
-    verified_pro = is_pro()
+    # Always verify Pro status through the license system, honoring a key
+    # explicitly passed by the caller (e.g. the CLI --license flag).
+    verified_pro = is_pro(license_key)
 
     # Load custom colors from config
     config = DevBadgeConfig.load()
     custom_colors = kwargs.pop("custom_colors", None) or config.custom_colors
 
-    # Check if Pro badge is requested without a verified license
-    if badge_type in PRO_BADGES and not verified_pro:
+    # Check if Pro badge is requested without a verified license or an
+    # explicit is_pro_user=True assertion from the caller.
+    if badge_type in PRO_BADGES and not (verified_pro or is_pro_user):
         return _pro_required_badge(badge_type, theme, custom_colors)
 
-    # Use verified status for all downstream checks
-    is_pro_user = verified_pro
+    # Never downgrade an explicitly passed is_pro_user=True; otherwise use
+    # the license-verified status for all downstream checks.
+    is_pro_user = is_pro_user or verified_pro
 
     generators = {
         "commits": _gen_commits,

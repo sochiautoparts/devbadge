@@ -146,6 +146,13 @@ def is_pro(license_key: Optional[str] = None) -> bool:
         license_key = os.getenv("LICENSE_KEY", os.getenv("DEVBADGE_LICENSE", ""))
 
     if not license_key:
+        # Fall back to the key saved by `devbadge pro activate` (~/.devbadge/config.json)
+        try:
+            license_key = DevBadgeConfig.load().license_key or ""
+        except Exception:
+            license_key = ""
+
+    if not license_key:
         return False
 
     # Validate key format
