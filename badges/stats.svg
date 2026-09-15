@@ -13,7 +13,7 @@
 <text x="119" y="52" font-family="Arial, sans-serif" font-size="9" fill="#6272a4">PRs</text>
     <text x="119" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#bd93f9">0</text>
 <text x="224" y="52" font-family="Arial, sans-serif" font-size="9" fill="#6272a4">Issues</text>
-    <text x="224" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#6272a4">2</text>
+    <text x="224" y="66" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#6272a4">0</text>
 
   <a href="https://github.com/sochiautoparts/devbadge" target="_blank">
     <text x="4" y="96" font-family="Arial, sans-serif" font-size="8" fill="#666666" opacity="0.6">DevBadge</text>
